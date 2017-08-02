@@ -6,4 +6,4 @@ if errorlevel 1 (
 )
 
 "packages\FAKE\tools\Fake.exe" build.fsx
-pause
+
