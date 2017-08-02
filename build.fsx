@@ -1,22 +1,36 @@
 // include Fake lib
+#r "System.Xml.Linq"
 #r @"packages\FAKE\tools\FakeLib.dll"
 open Fake
+open System.Xml.Linq
+
+RestorePackages()
 
 
 let buildDir  = @".\build\"
-let testDir   = @".\test\"
-let deployDir = @".\deploy\"
-let packagesDir = @".\packages"
+let artifactsNuGetDir = @"./artifacts/nuget/"
 
 
 Target "Clean" (fun _ ->
-    CleanDirs [buildDir; testDir; deployDir]
+    CleanDirs [buildDir; artifactsNuGetDir]
 )
 
-Target "CompileApp" (fun _ ->
+Target "Build" (fun _ ->
     !! @"src\*.fsproj"
       |> MSBuildRelease buildDir "Build"
       |> Log "AppBuild-Output: "
+)
+
+Target "BuildNuGet" (fun _ ->
+    let doc = System.Xml.Linq.XDocument.Load("./HttpApp.nuspec")
+    let vers = doc.Descendants(XName.Get("version", doc.Root.Name.NamespaceName)) 
+
+    NuGet (fun p -> 
+    {p with
+        Version = (Seq.head vers).Value
+        OutputPath = artifactsNuGetDir
+        WorkingDir = buildDir
+        })  "./HttpApp.nuspec"
 )
 
 // Default target
@@ -26,8 +40,10 @@ Target "Default" (fun _ ->
 
 
 "Clean"
-  ==> "CompileApp"
+  ==> "Build"
+  ==> "BuildNuGet"
+  
 
 
 // start build
-RunTargetOrDefault "CompileApp"
+RunTargetOrDefault "BuildNuGet"

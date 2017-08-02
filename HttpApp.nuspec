@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+    <metadata>
+    <id>HttpApp</id>
+    <version>1.0.0</version>
+    <title>HttpAPp</title>
+    <authors>Mikael Kjellqvist</authors>
+    <owners>Mikael Kjellqvist</owners>
+    <licenseUrl>https://github.com/yodiz/HttpApp/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/yodiz/HttpApp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>HtppApp</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="HttpApp.dll" target="lib\net45" />
+  </files>
+</package>
