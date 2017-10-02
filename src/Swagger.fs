@@ -1,4 +1,4 @@
-﻿namespace Svea.Dry.Swagger
+﻿namespace HttpApp.Swagger
 
 (*
 TODO:
