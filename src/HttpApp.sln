@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "HttpApp", "HttpApp.fsproj", "{78148A12-1483-4BA1-A94A-1F3094CD9C9F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C5FF111E-6CF7-47B2-AC0A-6FFA3EA0C2DE}"
+	ProjectSection(SolutionItems) = preProject
+		..\HttpApp.nuspec = ..\HttpApp.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
