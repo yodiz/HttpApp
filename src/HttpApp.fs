@@ -217,6 +217,26 @@ module Route =
         |Arg ArgType.Int32 -> match System.Int32.TryParse sourcePath with |true,v -> Hit (Some (ArgValue.Int32 v)) |_ -> Miss
         |Arg (ArgType.Decimal (ns, fp)) -> match System.Decimal.TryParse(sourcePath, ns, fp) with |true,v -> Hit (Some (ArgValue.Decimal v)) |_ -> Miss
 
+    //let rec innerUrlMatch (urlMatch:UrlMatch) (source:string list) (arguments:ArgValue option list) = 
+    //    match urlMatch, source with
+    //    |(tHead :: tBody), (sHead :: sBody) -> 
+    //        match isMatch tHead sHead with
+    //        |Hit (Some v) -> innerUrlMatch tBody sBody ((Some v) :: arguments)
+    //        |Hit None -> innerUrlMatch tBody sBody ((None) :: arguments)
+    //        |Miss -> None
+    //    |_ :: _, [] -> None
+    //    |[], _ :: _ -> None
+    //    |[], [] -> Some (arguments |> List.rev)
+
+    //let urlListMatch urlMatch source = 
+    //    innerUrlMatch urlMatch source []
+
+    //let urlMatch urlMatch (uri:System.Uri) = 
+        
+    //    let source = System.Uri.UnescapeDataString(uri.AbsolutePath).Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
+    //    innerUrlMatch urlMatch source []
+
+
     let rec innerUrlMatch (urlMatch:UrlMatch) (source:string list) (arguments:ArgValue option list) = 
         match urlMatch, source with
         |(tHead :: tBody), (sHead :: sBody) -> 
@@ -226,15 +246,23 @@ module Route =
             |Miss -> None
         |_ :: _, [] -> None
         |[], _ :: _ -> None
-        |[], [] -> Some (arguments |> List.rev)
+        |[], [] -> Some arguments
+    
+    let urlMatch urlMatch source = innerUrlMatch urlMatch source []
+    let urlGetParts (uri:System.Uri) = 
+        if (System.String.IsNullOrWhiteSpace(System.Web.HttpRuntime.AppDomainAppVirtualPath)) then
+            uri.AbsolutePath.Split('/') |> Array.toList
+            |> List.filter (fun s -> not (System.String.Equals (s,"")))
+        else
+            let appRelPath = System.Web.VirtualPathUtility.ToAppRelative(uri.LocalPath)
+            appRelPath.Split ('/') |> Array.toList
+            |> List.filter (fun s -> not (System.String.Equals (s,"")))
+            |> List.filter (fun s -> not (System.String.Equals (s,"~")))         
 
-    let urlListMatch urlMatch source = 
+    let urlMatchByUri urlMatch (uri:System.Uri) = 
+        let source = urlGetParts uri
         innerUrlMatch urlMatch source []
 
-    let urlMatch urlMatch (uri:System.Uri) = 
-        
-        let source = System.Uri.UnescapeDataString(uri.AbsolutePath).Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
-        innerUrlMatch urlMatch source []
 
     type Route<'a> = {
         HttpMethod : string
@@ -248,7 +276,7 @@ module Route =
             |> List.tryPick 
                 (fun r -> 
                     if request.Method = r.HttpMethod then
-                        match urlMatch r.Url request.Uri with 
+                        match urlMatchByUri r.Url request.Uri with 
                         |Some s -> Some (r.Action state request (s |> List.choose id))
                         |None -> None
                      else None
